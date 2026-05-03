@@ -2,6 +2,10 @@ print("collecting eggs agent starting up")
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+
+repeat wait(5) until player.PlayerGui.MainInterface.Enabled
+print("player loaded...")
+
 local input = loadstring(game:HttpGet('https://pastebin.com/raw/dYzQv3d8'))()
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
