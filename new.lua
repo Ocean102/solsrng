@@ -3,7 +3,12 @@ print("collecting eggs agent starting up")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-repeat wait(5) until player.PlayerGui.MainInterface.Enabled
+if not player.PlayerGui.MainInterface.Enabled then
+    repeat wait(5) until player.PlayerGui.MainInterface.Enabled
+end
+
+game:GetService("RunService"):Set3dRenderingEnabled(false)
+player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
 local input = loadstring(game:HttpGet('https://pastebin.com/raw/dYzQv3d8'))()
