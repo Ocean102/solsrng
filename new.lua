@@ -25,21 +25,18 @@ local function addEgg(v) if isEgg(v) then eggs[v] = true end end
 local function removeEgg(v) if isEgg(v) then eggs[v] = nil end end
 
 local ws = game:GetService("Workspace")
-
-coroutine.wrap(function()
-    for _, v in ipairs(ws:GetChildren()) do addEgg(v) end
-    for _, v in ipairs(ws.Map.Miscs.WaterBlocks:GetChildren()) do if v:IsA("BasePart") then v.CanCollide = false v.CanQuery = false v.CanTouch = false end end
-    for _, v in ipairs(workspace.Map.leafygrass:GetChildren()) do
-        if v:IsA("BasePart") then
-            local indent = 25
-            if not v:GetAttribute("ogpos") then v:SetAttribute("ogpos", v.Position.Y) else v.Position = Vector3.new(v.Position.X, v:GetAttribute("ogpos"),v.Position.Z) end
-            v.Size = Vector3.new(v.Size.X, indent, v.Size.Z)
-            v.Position = Vector3.new(v.Position.X, v.Position.Y - (indent / 2),v.Position.Z)
-        end
+for _, v in ipairs(ws:GetChildren()) do addEgg(v) end
+for _, v in ipairs(ws.Map.Miscs.WaterBlocks:GetChildren()) do if v:IsA("BasePart") then v.CanCollide = false v.CanQuery = false v.CanTouch = false end end
+for _, v in ipairs(workspace.Map.leafygrass:GetChildren()) do
+    if v:IsA("BasePart") then
+        local indent = 25
+        if not v:GetAttribute("ogpos") then v:SetAttribute("ogpos", v.Position.Y) else v.Position = Vector3.new(v.Position.X, v:GetAttribute("ogpos"),v.Position.Z) end
+        v.Size = Vector3.new(v.Size.X, indent, v.Size.Z)
+        v.Position = Vector3.new(v.Position.X, v.Position.Y - (indent / 2),v.Position.Z)
     end
-    ws.ChildAdded:Connect(addEgg)
-    ws.ChildRemoved:Connect(removeEgg)
-end)
+end
+ws.ChildAdded:Connect(addEgg)
+ws.ChildRemoved:Connect(removeEgg)
 
 local PathfindingService = game:GetService("PathfindingService")
 
@@ -92,7 +89,7 @@ local eggPos
 local stop = false
 
 player.OnTeleport:Connect(function(State)
-    queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))")
+    queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))()")
 end)
 
 coroutine.wrap(function()
