@@ -18,7 +18,13 @@ game:GetService("RunService"):Set3dRenderingEnabled(false)
 player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
-local input = loadstring(game:HttpGet("https://pastebin.com/raw/dYzQv3d8"))()
+local VIM = game:GetService("VirtualInputManager")
+local function simulateKeyPress(keyCode)
+    VIM:SendKeyEvent(true, keyCode, false, game)
+    task.wait(0.01)
+    VIM:SendKeyEvent(false, keyCode, false, game)
+end
+
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
 print("antibackshot initializing")
