@@ -19,7 +19,7 @@ player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
 local VIM = game:GetService("VirtualInputManager")
-local function simulateKeyPress(keyCode)
+local function press(keyCode)
     VIM:SendKeyEvent(true, keyCode, false, game)
     task.wait(0.01)
     VIM:SendKeyEvent(false, keyCode, false, game)
@@ -143,7 +143,7 @@ while task.wait(0.1) do
             if run == "cantgo" then stop = true end
             task.wait(0.1)
             if (root.Position - eggPos).Magnitude < 10 then
-                input.press(Enum.KeyCode.E)
+                press(Enum.KeyCode.E)
             end
         until not closestEgg.Parent or stop or (closestEgg:IsA("BasePart") and closestEgg.Transparency > 0 or nil)
 
