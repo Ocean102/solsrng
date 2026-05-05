@@ -2,31 +2,33 @@ print("collecting eggs agent starting up")
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+player.OnTeleport:Once(function()
+queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))()")
+end)
 
-if not player.PlayerGui.MainInterface.Enabled then
-    repeat wait(5) until player.PlayerGui.MainInterface.Enabled
-end
+if not player.PlayerGui.MainInterface.Enabled then repeat wait() until player.PlayerGui.MainInterface.Enabled end
 
+hookfunction(player.Kick, function()end)
+game:GetService("ReplicatedFirst").ClientHandlers.Utils.RejoinPlayer:Destroy()
+for i,v in pairs(getconnections(player.Idled)) do v:Disable() end
+
+print("capping fps and disable 3d to save performance")
+setfpscap(24)
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
-local input = loadstring(game:HttpGet('https://pastebin.com/raw/dYzQv3d8'))()
+local input = loadstring(game:HttpGet("https://pastebin.com/raw/dYzQv3d8"))()
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
 print("antibackshot initializing")
 local hrp = getCharacter():FindFirstChildWhichIsA("Humanoid").RootPart
-
-if hrp:FindFirstChild("cuthom") then return end
-local f = Instance.new("BodyAngularVelocity", hrp)
-f.Name = "cuthom"
-f.MaxTorque = Vector3.new(0, math.huge, 0)
-f.AngularVelocity = Vector3.new(0,10,0)
 local eggs = {}
 
 local function isEgg(v)
     if v:IsA("MeshPart") and string.find(string.lower(v.Name), "egg") then return true end
     if v:IsA("Model") and string.find(string.lower(v.Name), "random_potion") then return true end
+    if v:IsA("Model") and v:FindFirstChild("Hitox") then return true end
     return false
 end
 
@@ -61,7 +63,7 @@ local function moveToTarget(hum, target)
         })
 
         path:ComputeAsync(root.Position, target)
-        if path.Status ~= Enum.PathStatus.Success then return end
+        if path.Status ~= Enum.PathStatus.Success then return "cantgo" end
 
         for _, waypoint in ipairs(path:GetWaypoints()) do
             if (root.Position - target).Magnitude < 3 then break end
@@ -97,10 +99,6 @@ local start
 local eggPos
 local stop = false
 
-player.OnTeleport:Connect(function(State)
-    queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))()")
-end)
-
 coroutine.wrap(function()
 
 while task.wait(0.1) do
@@ -132,14 +130,13 @@ while task.wait(0.1) do
         start = tick()
         stop = false
 
-        moveToTarget(humanoid, eggPos)
+        local run =  moveToTarget(humanoid, eggPos)
 
         repeat
             if tick() - start > timeout then stop = true end
+            if run == "cantgo" then stop = true end
             task.wait(0.1)
-            if (root.Position - eggPos).Magnitude < 30 then
-                input.press(Enum.KeyCode.E)
-                input.press(Enum.KeyCode.E)
+            if (root.Position - eggPos).Magnitude < 10 then
                 input.press(Enum.KeyCode.E)
             end
         until not closestEgg.Parent or stop or (closestEgg:IsA("BasePart") and closestEgg.Transparency > 0 or nil)
