@@ -2,8 +2,9 @@ print("collecting eggs agent starting up")
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+
 player.OnTeleport:Once(function()
-queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))()")
+    queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Ocean102/solsrng/refs/heads/main/new.lua'))()")
 end)
 
 if not player.PlayerGui.MainInterface.Enabled then repeat wait() until player.PlayerGui.MainInterface.Enabled end
@@ -13,28 +14,20 @@ game:GetService("ReplicatedFirst").ClientHandlers.Utils.RejoinPlayer:Destroy()
 for i,v in pairs(getconnections(player.Idled)) do v:Disable() end
 
 print("capping fps and disable 3d to save performance")
-setfpscap(24)
+setfpscap(30)
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
-local VIM = game:GetService("VirtualInputManager")
-local function press(keyCode)
-    VIM:SendKeyEvent(true, keyCode, false, game)
-    task.wait(0.01)
-    VIM:SendKeyEvent(false, keyCode, false, game)
-end
-
+local input = loadstring(game:HttpGet("https://pastebin.com/raw/dYzQv3d8"))()
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
-print("antibackshot initializing")
 local hrp = getCharacter():FindFirstChildWhichIsA("Humanoid").RootPart
 local eggs = {}
 
 local function isEgg(v)
     if v:IsA("MeshPart") and string.find(string.lower(v.Name), "egg") then return true end
     if v:IsA("Model") and string.find(string.lower(v.Name), "random_potion") then return true end
-    if v:IsA("Model") and v:FindFirstChild("Hitox") then return true end
     return false
 end
 
@@ -107,7 +100,7 @@ local stop = false
 
 coroutine.wrap(function()
 
-while task.wait(0.1) do
+while task.wait(1) do
     local character = getCharacter()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     local root = character:FindFirstChild("HumanoidRootPart")
@@ -143,7 +136,12 @@ while task.wait(0.1) do
             if run == "cantgo" then stop = true end
             task.wait(0.1)
             if (root.Position - eggPos).Magnitude < 10 then
-                press(Enum.KeyCode.E)
+                if not fireproximityprompt then
+                    input.press(Enum.KeyCode.E)
+                else
+                    local prompt = closestEgg:FindFirstChildWhichIsA("ProximityPrompt")
+                    if prompt then fireproximityprompt(prompt) end
+                end
             end
         until not closestEgg.Parent or stop or (closestEgg:IsA("BasePart") and closestEgg.Transparency > 0 or nil)
 
