@@ -24,7 +24,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local input = {
     press = function(enumKeyCode)
         VirtualInputManager:SendKeyEvent(true, enumKeyCode, false, game)
-        task.wait[0.01)
+        task.wait(0.01)
         VirtualInputManager:SendKeyEvent(false, enumKeyCode, false, game)
     end
 }
