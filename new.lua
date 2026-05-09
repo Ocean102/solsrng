@@ -19,7 +19,15 @@ game:GetService("RunService"):Set3dRenderingEnabled(false)
 player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
-local input = loadstring(game:HttpGet("https://pastebin.com/raw/dYzQv3d8"))()
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local input = {
+    press = function(enumKeyCode)
+        VirtualInputManager:SendKeyEvent(true, enumKeyCode, false, game)
+        task.wait[0.01)
+        VirtualInputManager:SendKeyEvent(false, enumKeyCode, false, game)
+    end
+}
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
 local hrp = getCharacter():FindFirstChildWhichIsA("Humanoid").RootPart
