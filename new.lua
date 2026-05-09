@@ -135,20 +135,13 @@ while task.wait(1) do
             if tick() - start > timeout then stop = true end
             if run == "cantgo" then stop = true end
             task.wait(0.1)
-            if (root.Position - eggPos).Magnitude < 10 then
-                if not fireproximityprompt then
-                    input.press(Enum.KeyCode.E)
-                else
-                    local prompt = closestEgg:FindFirstChildWhichIsA("ProximityPrompt")
-                    if prompt then fireproximityprompt(prompt) end
-                end
-            end
+            input.press(Enum.KeyCode.E)
         until not closestEgg.Parent or stop or (closestEgg:IsA("BasePart") and closestEgg.Transparency > 0 or nil)
 
         eggs[closestEgg] = nil
 
         if tick() - start > timeout then
-            print("i give up 🥀")
+        
         else
             eggcount += 1
             print("egg collected. total:", eggcount)
