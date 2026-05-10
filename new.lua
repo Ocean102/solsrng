@@ -20,14 +20,12 @@ player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
 local VirtualInputManager = game:GetService("VirtualInputManager")
+function press(enumKeyCode)
+    VirtualInputManager:SendKeyEvent(true, enumKeyCode, false, game)
+    task.wait(0.01)
+    VirtualInputManager:SendKeyEvent(false, enumKeyCode, false, game)
+end
 
-local input = {
-    press = function(enumKeyCode)
-        VirtualInputManager:SendKeyEvent(true, enumKeyCode, false, game)
-        task.wait(0.01)
-        VirtualInputManager:SendKeyEvent(false, enumKeyCode, false, game)
-    end
-}
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
 
 local hrp = getCharacter():FindFirstChildWhichIsA("Humanoid").RootPart
@@ -108,7 +106,7 @@ local stop = false
 
 coroutine.wrap(function()
 
-while task.wait(1) do
+while task.wait(0.1) do
     local character = getCharacter()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     local root = character:FindFirstChild("HumanoidRootPart")
@@ -143,7 +141,7 @@ while task.wait(1) do
             if tick() - start > timeout then stop = true end
             if run == "cantgo" then stop = true end
             task.wait(0.1)
-            input.press(Enum.KeyCode.E)
+            press(Enum.KeyCode.E)
         until not closestEgg.Parent or stop or (closestEgg:IsA("BasePart") and closestEgg.Transparency > 0 or nil)
 
         eggs[closestEgg] = nil
