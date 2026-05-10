@@ -10,20 +10,21 @@ end)
 if not player.PlayerGui.MainInterface.Enabled then repeat wait() until player.PlayerGui.MainInterface.Enabled end
 
 hookfunction(player.Kick, function()end)
-game:GetService("ReplicatedFirst").ClientHandlers.Utils.RejoinPlayer:Destroy()
+local rj = game:GetService("ReplicatedFirst").ClientHandlers.Utils:FindFirstChild("RejoinPlayer")
+if rj then rj:Destroy() end
 for i,v in pairs(getconnections(player.Idled)) do v:Disable() end
 
 print("capping fps and disable 3d to save performance")
 setfpscap(30)
 game:GetService("RunService"):Set3dRenderingEnabled(false)
-player.PlayerGui.MainInterface.Enabled = false
 print("player loaded...")
 
-local VirtualInputManager = game:GetService("VirtualInputManager")
+local vim = game:GetService("VirtualInputManager")
+
 function press(enumKeyCode)
-    VirtualInputManager:SendKeyEvent(true, enumKeyCode, false, game)
+    vim:SendKeyEvent(true, enumKeyCode, false, game)
     task.wait(0.01)
-    VirtualInputManager:SendKeyEvent(false, enumKeyCode, false, game)
+    vim:SendKeyEvent(false, enumKeyCode, false, game)
 end
 
 local function getCharacter() return player.Character or player.CharacterAdded:Wait() end
@@ -41,9 +42,10 @@ local function addEgg(v) if isEgg(v) then eggs[v] = true end end
 local function removeEgg(v) if isEgg(v) then eggs[v] = nil end end
 
 local ws = game:GetService("Workspace")
+
 for _, v in ipairs(ws:GetChildren()) do addEgg(v) end
 for _, v in ipairs(ws.Map.Miscs.WaterBlocks:GetChildren()) do if v:IsA("BasePart") then v.CanCollide = false v.CanQuery = false v.CanTouch = false end end
-for _, v in ipairs(workspace.Map.leafygrass:GetChildren()) do
+for _, v in ipairs(ws.Map.leafygrass:GetChildren()) do
     if v:IsA("BasePart") then
         local indent = 25
         if not v:GetAttribute("ogpos") then v:SetAttribute("ogpos", v.Position.Y) else v.Position = Vector3.new(v.Position.X, v:GetAttribute("ogpos"),v.Position.Z) end
@@ -51,6 +53,43 @@ for _, v in ipairs(workspace.Map.leafygrass:GetChildren()) do
         v.Position = Vector3.new(v.Position.X, v.Position.Y - (indent / 2),v.Position.Z)
     end
 end
+
+for _,v in ipairs(player.PlayerGui.MainInterface:GetChildren()) do
+    if v.Name == v.ClassName and not v:IsA("ImageButton") then v:Remove() end
+end
+
+for _, v in ipairs(player.PlayerGui:GetChildren()) do
+    if v.Name ~= "MainInterface" and not string.find(v.Name, "Topbar") and not v:IsA("Model") then
+        v:Destroy()
+    end
+end
+
+game:GetService("ReplicatedStorage").Modules.UI.Icon:Destroy()
+
+local function hasValidEggAncestor(obj)
+    local current = obj.Parent
+
+    while current do
+        if isEgg(current) then
+            return true
+        end
+
+        current = current.Parent
+    end
+
+    return false
+end
+
+coroutine.wrap(function()
+    for _, v in ipairs(ws:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            if not hasValidEggAncestor(v) then
+                v:Destroy()
+            end
+        end
+    end
+end)()
+
 ws.ChildAdded:Connect(addEgg)
 ws.ChildRemoved:Connect(removeEgg)
 
@@ -104,6 +143,70 @@ local start
 local eggPos
 local stop = false
 
+local guis = game:GetService("GuiService")
+
+function checkRareAura(v)
+    local accept, deny
+
+    if v.Parent.Name == "Background" or v.Name == "Background" then
+        for _, v in ipairs(player.PlayerGui.MainInterface:GetChildren()) do
+            if v:IsA("ImageButton") and v:FindFirstChild("TextLabel") then
+                if v.TextLabel.Text:lower() == "equip" then
+                    accept = v
+                else
+                    deny = v
+                end
+            end
+
+            if deny and accept then break end
+        end
+
+        guis.GuiNavigationEnabled = true
+        guis.SelectedObject = deny
+        press(Enum.KeyCode.Return)
+        guis.GuiNavigationEnabled = false
+        guis.SelectedObject = nil
+    end
+end
+
+player.PlayerGui.MainInterface.Background.ChildAdded:Connect(checkRareAura)
+task.delay(2, function()
+    for _,v in ipairs(player.PlayerGui.MainInterface:GetChildren()) do
+        checkRareAura(v)
+    end
+    
+    local btg = player.PlayerGui.MainInterface.BottomFrame
+    local ar, qr = btg.AutoRoll, btg.QuickRoll
+
+    function changed(v)
+        local status = string.find(v.Context.Text:lower(), "on")
+
+        if not status then
+            task.wait(0.1)
+            guis.GuiNavigationEnabled = true
+            guis.SelectedObject = v
+
+            repeat
+                press(Enum.KeyCode.Return)
+                status = string.find(v.Context.Text:lower(), "on")
+                task.wait(0.05)
+            until status
+
+            guis.SelectedObject = nil
+        end
+    end
+
+    changed(ar) changed(qr)
+
+    ar.Context:GetPropertyChangedSignal("Text"):Connect(function()
+        changed(ar)
+    end)
+
+    qr.Context:GetPropertyChangedSignal("Text"):Connect(function()
+        changed(qr)
+    end)
+end)
+
 coroutine.wrap(function()
 
 while task.wait(0.1) do
@@ -147,10 +250,8 @@ while task.wait(0.1) do
         eggs[closestEgg] = nil
 
         if tick() - start > timeout then
-        
-        else
             eggcount += 1
-            print("egg collected. total:", eggcount)
+            print("egg collected #", eggcount)
         end
 
         moving = false
