@@ -59,7 +59,7 @@ for _,v in ipairs(player.PlayerGui.MainInterface:GetChildren()) do
 end
 
 for _, v in ipairs(player.PlayerGui:GetChildren()) do
-    if v.Name ~= "MainInterface" and not string.find(v.Name, "Topbar") and not v:IsA("Model") then
+    if v.Name ~= "MainInterface" and not string.find(v.Name, "Proximity") and not v:IsA("Model") then
         v:Destroy()
     end
 end
